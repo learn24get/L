@@ -3997,12 +3997,6 @@ CMDs[#CMDs + 1] = {NAME = 'exit', DESC = 'Kills roblox process'}
 CMDs[#CMDs + 1] = {NAME = '', DESC = ''}
 CMDs[#CMDs + 1] = {NAME = 'noclip', DESC = 'Go through objects'}
 CMDs[#CMDs + 1] = {NAME = 'unnoclip / clip', DESC = 'Disables noclip'}
-CMDs[#CMDs + 1] = {NAME = 'fly', DESC = 'Makes you fly'}
-CMDs[#CMDs + 1] = {NAME = 'unfly', DESC = 'Disables fly'}
-CMDs[#CMDs + 1] = {NAME = 'flyspeed [num]', DESC = 'Set fly speed (default is 20)'}
-CMDs[#CMDs + 1] = {NAME = 'vehiclefly / vfly', DESC = 'Makes you fly in a vehicle'}
-CMDs[#CMDs + 1] = {NAME = 'unvehiclefly / unvfly', DESC = 'Disables vehicle fly'}
-CMDs[#CMDs + 1] = {NAME = 'vehicleflyspeed  / vflyspeed [num]', DESC = 'Set vehicle fly speed'}
 CMDs[#CMDs + 1] = {NAME = 'float /  platform', DESC = 'Spawns a platform beneath you causing you to float'}
 CMDs[#CMDs + 1] = {NAME = 'unfloat / noplatform', DESC = 'Removes the platform'}
 CMDs[#CMDs + 1] = {NAME = 'swim', DESC = 'Allows you to swim in the air'}
@@ -4403,7 +4397,6 @@ end
 Clip = true
 
 Players.LocalPlayer.CharacterAdded:Connect(function()
-	FLYING = false
 	Floating = false
 
 	if not Clip then
@@ -5473,19 +5466,6 @@ end
 UserInputService.InputBegan:connect(onInputBegan)
 UserInputService.InputEnded:connect(onInputEnded)
 
-Fly.Select.MouseButton1Click:Connect(function()
-	if keySelected then
-		addbind('togglefly',keyPressed,bindChosenKeyUp)
-		refreshbinds()
-		updatesaves()
-		if keyPressed == 'RightClick' or keyPressed == 'LeftClick' then
-			notify('Keybinds Updated','Binded '..keyPressed..' to toggle fly')
-		else
-			notify('Keybinds Updated','Binded '..keyPressed:sub(14)..' to toggle fly')
-		end
-	end
-end)
-
 Noclip.Select.MouseButton1Click:Connect(function()
 	if keySelected then
 		addbind('togglenoclip',keyPressed,bindChosenKeyUp)
@@ -5834,7 +5814,6 @@ local DoubleJumpEnabled = false
 local DamageIndicatorDebounce = false
 local ExploiterDetectionOn = false
 local FeLoop = false 
-local Flying = false
 local Freecam = false
 local GodMode = false
 local GunStomp = true 
@@ -5868,7 +5847,6 @@ local AimbotVelocity = 5
 local NewPredictionVelocity = 5 
 local GravGunDistance = 5
 local CrouchSpeed = 8
-local FlySpeed = 10
 local WalkSpeed = 16
 local NormalWs = 16
 local SprintSpeed = 25
@@ -6789,161 +6767,6 @@ function(args, speaker)
 		execCmd('noclip')
 	else
 		execCmd('clip')
-	end
-end)
-
-FLYING = false
-iyflyspeed = 1
-vehicleflyspeed = 1
-function sFLY(vfly)
-	repeat wait() until Players.LocalPlayer and Players.LocalPlayer.Character and Players.LocalPlayer.Character:FindFirstChild('HumanoidRootPart') and Players.LocalPlayer.Character:FindFirstChild('Humanoid')
-	repeat wait() until IYMouse
-
-	local T = Players.LocalPlayer.Character.HumanoidRootPart
-	local CONTROL = {F = 0, B = 0, L = 0, R = 0, Q = 0, E = 0}
-	local lCONTROL = {F = 0, B = 0, L = 0, R = 0, Q = 0, E = 0}
-	local SPEED = 0
-
-	local function FLY()
-		FLYING = true
-		local BG = Instance.new('BodyGyro', T)
-		local BV = Instance.new('BodyVelocity', T)
-		BG.P = 9e4
-		BG.maxTorque = Vector3.new(9e9, 9e9, 9e9)
-		BG.cframe = T.CFrame
-		BV.velocity = Vector3.new(0, 0, 0)
-		BV.maxForce = Vector3.new(9e9, 9e9, 9e9)
-		spawn(function()
-			repeat wait()
-				if not vfly and Players.LocalPlayer.Character:FindFirstChildOfClass('Humanoid') then
-					Players.LocalPlayer.Character:FindFirstChildOfClass('Humanoid').PlatformStand = true
-				end
-				if CONTROL.L + CONTROL.R ~= 0 or CONTROL.F + CONTROL.B ~= 0 or CONTROL.Q + CONTROL.E ~= 0 then
-					SPEED = 50
-				elseif not (CONTROL.L + CONTROL.R ~= 0 or CONTROL.F + CONTROL.B ~= 0 or CONTROL.Q + CONTROL.E ~= 0) and SPEED ~= 0 then
-					SPEED = 0
-				end
-				if (CONTROL.L + CONTROL.R) ~= 0 or (CONTROL.F + CONTROL.B) ~= 0 or (CONTROL.Q + CONTROL.E) ~= 0 then
-					BV.velocity = ((workspace.CurrentCamera.CoordinateFrame.lookVector * (CONTROL.F + CONTROL.B)) + ((workspace.CurrentCamera.CoordinateFrame * CFrame.new(CONTROL.L + CONTROL.R, (CONTROL.F + CONTROL.B + CONTROL.Q + CONTROL.E) * 0.2, 0).p) - workspace.CurrentCamera.CoordinateFrame.p)) * SPEED
-					lCONTROL = {F = CONTROL.F, B = CONTROL.B, L = CONTROL.L, R = CONTROL.R}
-				elseif (CONTROL.L + CONTROL.R) == 0 and (CONTROL.F + CONTROL.B) == 0 and (CONTROL.Q + CONTROL.E) == 0 and SPEED ~= 0 then
-					BV.velocity = ((workspace.CurrentCamera.CoordinateFrame.lookVector * (lCONTROL.F + lCONTROL.B)) + ((workspace.CurrentCamera.CoordinateFrame * CFrame.new(lCONTROL.L + lCONTROL.R, (lCONTROL.F + lCONTROL.B + CONTROL.Q + CONTROL.E) * 0.2, 0).p) - workspace.CurrentCamera.CoordinateFrame.p)) * SPEED
-				else
-					BV.velocity = Vector3.new(0, 0, 0)
-				end
-				BG.cframe = workspace.CurrentCamera.CoordinateFrame
-			until not FLYING
-			CONTROL = {F = 0, B = 0, L = 0, R = 0, Q = 0, E = 0}
-			lCONTROL = {F = 0, B = 0, L = 0, R = 0, Q = 0, E = 0}
-			SPEED = 0
-			BG:destroy()
-			BV:destroy()
-			if Players.LocalPlayer.Character:FindFirstChildOfClass('Humanoid') then
-				Players.LocalPlayer.Character:FindFirstChildOfClass('Humanoid').PlatformStand = false
-			end
-		end)
-	end
-	IYMouse.KeyDown:connect(function(KEY)
-		if KEY:lower() == 'w' then
-			if vfly then
-				CONTROL.F = vehicleflyspeed
-			else
-				CONTROL.F = iyflyspeed
-			end
-		elseif KEY:lower() == 's' then
-			if vfly then
-				CONTROL.B = - vehicleflyspeed
-			else
-				CONTROL.B = - iyflyspeed
-			end
-		elseif KEY:lower() == 'a' then
-			if vfly then
-				CONTROL.L = - vehicleflyspeed
-			else
-				CONTROL.L = - iyflyspeed
-			end
-		elseif KEY:lower() == 'd' then 
-			if vfly then
-				CONTROL.R = vehicleflyspeed
-			else
-				CONTROL.R = iyflyspeed
-			end
-		elseif KEY:lower() == 'e' then
-			if vfly then
-				CONTROL.Q = vehicleflyspeed*2
-			else
-				CONTROL.Q = iyflyspeed*2
-			end
-		elseif KEY:lower() == 'q' then
-			if vfly then
-				CONTROL.E = -vehicleflyspeed*2
-			else
-				CONTROL.E = -iyflyspeed*2
-			end
-		end
-	end)
-	IYMouse.KeyUp:connect(function(KEY)
-		if KEY:lower() == 'w' then
-			CONTROL.F = 0
-		elseif KEY:lower() == 's' then
-			CONTROL.B = 0
-		elseif KEY:lower() == 'a' then
-			CONTROL.L = 0
-		elseif KEY:lower() == 'd' then
-			CONTROL.R = 0
-		elseif KEY:lower() == 'e' then
-			CONTROL.Q = 0
-		elseif KEY:lower() == 'q' then
-			CONTROL.E = 0
-		end
-	end)
-	FLY()
-end
-
-function NOFLY()
-	FLYING = false
-	Players.LocalPlayer.Character:FindFirstChildOfClass('Humanoid').PlatformStand = false
-end
-
-addcmd('fly',{},
-function(args, speaker)
-	NOFLY()
-	wait()
-	sFLY()
-end)
-
-addcmd('flyspeed',{'flysp'},
-function(args, speaker)
-	if isNumber(args[1]) then
-		iyflyspeed = args[1]
-	end
-end)
-
-addcmd('unfly',{'nofly','novfly','unvehiclefly','novehiclefly','unvfly'},
-function(args, speaker)
-	NOFLY()
-end)
-
-addcmd('vfly',{'vehiclefly'},
-function(args, speaker)
-	NOFLY()
-	wait()
-	sFLY(true)
-end)
-
-addcmd('vflyspeed',{'vflysp','vehicleflyspeed','vehicleflysp'},
-function(args, speaker)
-	if isNumber(args[1]) then
-		vehicleflyspeed = args[1]
-	end
-end)
-
-addcmd('togglefly',{},
-function(args, speaker)
-	if FLYING then
-		NOFLY()
-	else
-		sFLY()
 	end
 end)
 
