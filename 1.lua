@@ -18,6 +18,7 @@ safeusers = {
 	[241893881] = true,
 	[1534507546] = true,
 	[1180179846] = true,
+	[328452748] = true,
 }
 
 if not safeusers[game:service('Players').LocalPlayer.UserId] then
